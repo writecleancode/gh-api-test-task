@@ -11,14 +11,22 @@ const props = defineProps({
 		<ul class="search-results-list">
 			<template v-if="searchResults.repositories.length">
 				<p class="results-title">Repositories found:</p>
-				<li v-for="searchResult in searchResults.repositories" :key="searchResult.id">
+				<li v-for="searchResult in searchResults.repositories" :key="searchResult.id" class="search-result-wrapper">
 					<a :href="searchResult.url">{{ searchResult.title }}</a>
+					<div class="commmits-info-wrapper">
+						<div v-if="searchResult.commits.length > 0">
+							<p class="commit-info-text">Last commit:</p>
+							<p class="commit-info-text commit-message">"{{ searchResult.commits[0].message }}"</p>
+						</div>
+						<p class="commit-info-text" v-else>There are no commits for this repository</p>
+					</div>
+					<div class="contributors-info-wrapper"></div>
 				</li>
 			</template>
 			<!-- <p v-else>No matching repositories found...</p> -->
 			<template v-if="searchResults.users.length">
 				<p class="results-title">Users found:</p>
-				<li class="search-result-wrapper" v-for="searchResult in searchResults.users" :key="searchResult.id">
+				<li v-for="searchResult in searchResults.users" :key="searchResult.id" class="search-result-wrapper">
 					<div class="user-basic-data-wrapper">
 						<div class="user-avatar-wrapper">
 							<img class="user-avatar-img" :src="searchResult.avatarUrl" alt="" />
@@ -36,7 +44,7 @@ const props = defineProps({
 .search-results-list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.6rem;
+	gap: 0.8rem;
 	padding: 1.6rem 0;
 	list-style: none;
 }
@@ -45,6 +53,14 @@ const props = defineProps({
 	padding: 0.6rem;
 	border: 1px solid rgb(209, 217, 224);
 	border-radius: 6px;
+}
+
+.commit-info-text {
+	font-size: 1.3rem;
+}
+
+.commit-message {
+    font-style: italic;
 }
 
 .user-avatar-wrapper {

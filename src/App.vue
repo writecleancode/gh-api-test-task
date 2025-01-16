@@ -10,7 +10,8 @@ const initialSearchTarget = 'repositories';
 const initialSearchResultsState = { repositories: [], users: [] };
 
 const API_TOKEN = import.meta.env.VITE_GH_TOKEN;
-const searchInputValue = ref('writecleancode');
+const isLoading = ref(false);
+const searchInputValue = ref('compact-cars');
 const searchTarget = ref(initialSearchTarget);
 const searchResults = ref(initialSearchResultsState);
 
@@ -27,6 +28,7 @@ const handleSearchTargetButtonClick = e => {
 };
 
 const handleFormSubmit = () => {
+	isLoading.value = true;
 	if (searchTarget.value === 'repositories') {
 		getMatchingRepositories(searchInputValue.value);
 	} else {
@@ -39,6 +41,29 @@ const handleSearchResults = (resultsType, resultsArr) => {
 		...initialSearchResultsState,
 		[resultsType]: resultsArr,
 	};
+	isLoading.value = false;
+};
+
+const getCommits = async (commitsUrl: string) => {
+	try {
+		const response = await octokit.request({
+			method: 'GET',
+			url: commitsUrl,
+			headers: {
+				authorization: API_TOKEN,
+			},
+		});
+
+		const commitsDataArr = response.data.map(item => ({
+			message: item.commit.message,
+			date: item.commit.author.date,
+			author: item.commit.author.name,
+		}));
+
+		return commitsDataArr;
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 const getMatchingRepositories = async (searchPhrase: string) => {
@@ -50,13 +75,20 @@ const getMatchingRepositories = async (searchPhrase: string) => {
 				authorization: API_TOKEN,
 			},
 		});
-		console.log(response.data.items);
-		const results = response.data.items.map(resultItem => ({
-			id: resultItem.id,
-			title: resultItem.full_name,
-			url: resultItem.html_url,
-		}));
-		handleSearchResults('repositories', results);
+		const repositoryData = await Promise.all(
+			response.data.items.map(async resultItem => {
+				const commits = resultItem.size > 0 ? await getCommits(resultItem.commits_url) : [];
+
+				return {
+					id: resultItem.id,
+					title: resultItem.full_name,
+					url: resultItem.html_url,
+					commits,
+				};
+			})
+		);
+
+		handleSearchResults('repositories', repositoryData);
 	} catch (error) {
 		console.log(error);
 	}
@@ -88,7 +120,8 @@ const getMatchingUsers = async (searchPhrase: string) => {
 <template>
 	<div class="app-wrapper">
 		<Header :handleSearchTargetButtonClick :searchTarget :handleFormSubmit :searchInputValue :handleInputChange :clearSearchInput />
-		<SearchResults :searchResults />
+		<p v-if="isLoading">Loading...</p>
+		<SearchResults v-else :searchResults />
 	</div>
 </template>
 

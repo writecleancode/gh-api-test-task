@@ -73,7 +73,6 @@ const getMatchingUsers = async (searchPhrase: string) => {
 			url: resultItem.html_url,
 			avatar: resultItem.avatar_url,
 		}));
-		console.log(results);
 		handleSearchResults('users', results);
 	} catch (error) {
 		console.log(error);

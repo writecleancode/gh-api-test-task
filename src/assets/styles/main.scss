@@ -1,3 +1,5 @@
+@import '@/assets/styles/fonts';
+
 *,
 *::before,
 *::after {
@@ -13,7 +15,7 @@ html {
 
 body {
     font-size: 1.6rem;
-    font-family: 'sans-serif';
+    font-family: 'Open Sans', 'sans-serif';
     line-height: 1.5;
     background-color: #fff;
     color: #232323;

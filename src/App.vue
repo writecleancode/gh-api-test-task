@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Header from '@/components/organisms/Header.vue';
+import SearchResults from '@/components/organisms/SearchResults.vue';
 
 // import { Octokit, App } from "octokit";
 import { Octokit } from '@octokit/core';
@@ -74,8 +75,8 @@ const getMatchingUsers = async (searchPhrase: string) => {
 		const results = response.data.items.map(resultItem => ({
 			id: resultItem.id,
 			name: resultItem.login,
-			url: resultItem.html_url,
-			avatar: resultItem.avatar_url,
+			profileUrl: resultItem.html_url,
+			avatarUrl: resultItem.avatar_url,
 		}));
 		handleSearchResults('users', results);
 	} catch (error) {
@@ -87,19 +88,7 @@ const getMatchingUsers = async (searchPhrase: string) => {
 <template>
 	<div class="app-wrapper">
 		<Header :handleSearchTargetButtonClick :searchTarget :handleFormSubmit :searchInputValue :handleInputChange :clearSearchInput />
-		<p>Results:</p>
-		<ul>
-			<template v-if="searchResults.repositories.length">
-				<li v-for="searchResult in searchResults.repositories" :key="searchResult.id">
-					<a :href="searchResult.url">{{ searchResult.title }}</a>
-				</li>
-			</template>
-			<template v-if="searchResults.users.length">
-				<li v-for="searchResult in searchResults.users" :key="searchResult.id">
-					<a :href="searchResult.url">{{ searchResult.name }}</a>
-				</li>
-			</template>
-		</ul>
+		<SearchResults :searchResults />
 	</div>
 </template>
 

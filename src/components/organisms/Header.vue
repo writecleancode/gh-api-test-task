@@ -39,7 +39,7 @@ const props = defineProps({
 .app-title {
 	padding: 0.6rem;
 	font-weight: 500;
-	font-size: 1.8rem;
+	font-size: 1.7rem;
 	text-align: center;
 }
 </style>

@@ -89,15 +89,15 @@ onMounted(async () => {
 					<p>Followers</p>
 					<p>{{ userData.followers }}</p>
 				</div>
-				<div class="user-data-box">
+				<div v-if="userData.collaborators" class="user-data-box">
 					<p>Collaborators</p>
 					<p>{{ userData.collaborators }}</p>
 				</div>
-				<div class="user-data-box">
+				<div v-if="userData.location" class="user-data-box">
 					<p>Location</p>
 					<p>{{ userData.location }}</p>
 				</div>
-				<div class="user-data-box">
+				<div v-if="userData.blog" class="user-data-box">
 					<p>Website</p>
 					<a :href="userData.blog">{{ userData.blog }}</a>
 				</div>

@@ -3,6 +3,7 @@ import Xicon from '@/assets/icons/Xicon.vue';
 import SearchIcon from '@/assets/icons/SearchIcon.vue';
 
 import { inject, type PropType } from 'vue';
+import type { clearSearchInput, handleInputChangeType } from '@/types/types';
 
 const props = defineProps({
 	handleFormSubmit: {
@@ -12,8 +13,8 @@ const props = defineProps({
 });
 
 const searchInputValue = inject('searchInputValue');
-const handleInputChange = inject('handleInputChange');
-const clearSearchInput = inject('clearSearchInput');
+const handleInputChange = inject<handleInputChangeType>('handleInputChange');
+const clearSearchInput = inject<clearSearchInput>('clearSearchInput');
 </script>
 
 <template>

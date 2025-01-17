@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { handlePaginationButtonClick } from '@/types/types';
 import { inject } from 'vue';
 
 const props = defineProps({
@@ -8,8 +9,8 @@ const props = defineProps({
 	},
 });
 
-const currentPage = inject('currentPage');
-const handlePaginationButtonClick = inject('handlePaginationButtonClick');
+const currentPage = inject('currentPage') as number;
+const handlePaginationButtonClick = inject<handlePaginationButtonClick>('handlePaginationButtonClick');
 </script>
 
 <template>

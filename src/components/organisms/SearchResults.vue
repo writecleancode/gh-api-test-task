@@ -62,7 +62,7 @@ const props = defineProps({
 						<div class="user-avatar-wrapper">
 							<img class="user-avatar-img" :src="searchResult.avatarUrl" alt="" />
 						</div>
-						<a :href="searchResult.url">{{ searchResult.name }}</a>
+						<RouterLink :to="`users/${searchResult.id}`">{{ searchResult.name }}</RouterLink>
 					</div>
 				</li>
 			</ul>

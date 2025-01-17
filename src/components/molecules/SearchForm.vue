@@ -5,7 +5,7 @@ import StyledButton from '@/components/atoms/StyledButton.vue';
 import type { handleFormSubmit, handleSearchTargetButtonClick } from '@/types/types';
 import { inject } from 'vue';
 
-const handleFormSubmit = inject('handleFormSubmit') as handleFormSubmit;
+const handleFormSubmit = inject<handleFormSubmit>('handleFormSubmit', () => {});
 const searchTarget = inject('searchTarget');
 const handleSearchTargetButtonClick = inject<handleSearchTargetButtonClick>('handleSearchTargetButtonClick');
 </script>

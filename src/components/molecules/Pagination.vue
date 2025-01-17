@@ -9,7 +9,7 @@ const props = defineProps({
 	},
 });
 
-const currentPage = inject('currentPage') as number;
+const currentPage = inject<number>('currentPage', 1);
 const handlePaginationButtonClick = inject<handlePaginationButtonClick>('handlePaginationButtonClick');
 </script>
 

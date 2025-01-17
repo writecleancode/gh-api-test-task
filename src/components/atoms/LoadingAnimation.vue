@@ -1,9 +1,6 @@
-<script setup lang="ts"></script>
-
 <template>
 	<div class="loading-animation-wrapper">
 		<img src="@/assets/img/loading_animation.gif" alt="loading" />
-		<!-- <p>Loading...</p> -->
 	</div>
 </template>
 

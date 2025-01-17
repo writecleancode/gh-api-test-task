@@ -4,18 +4,23 @@ import SearchSettings from '@/components/molecules/SearchSettings.vue';
 import LoadingAnimation from '@/components/atoms/LoadingAnimation.vue';
 import SearchResults from '@/components/organisms/SearchResults.vue';
 
-// import { Octokit, App } from "octokit";
 import { Octokit } from '@octokit/core';
-import { computed, ref, watch } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
 
-const initialSearchTarget = 'users';
+const API_TOKEN = import.meta.env.VITE_GH_TOKEN;
+const initialSearchTarget = 'repositories';
 const initialSearchResultsState = { repositories: [], users: [] };
 const initialResultsPerPageValue = 20;
 
-const API_TOKEN = import.meta.env.VITE_GH_TOKEN;
-const hasUserStarted = ref(false);
+const octokit = new Octokit({ auth: API_TOKEN });
+const requestHeaders = {
+	// authorization: API_TOKEN,
+	'X-GitHub-Api-Version': '2022-11-28',
+};
+
 const isLoading = ref(false);
-const searchInputValue = ref('writecleancode');
+const hasUserStarted = ref(false);
+const searchInputValue = ref('');
 const sortValue = ref('');
 const orderValue = ref('');
 const resultsPerPageValue = ref(initialResultsPerPageValue);
@@ -27,15 +32,7 @@ const totalPages = computed(() => {
 const currentPage = ref(1);
 const searchResults = ref(initialSearchResultsState);
 
-const octokit = new Octokit({ auth: API_TOKEN });
-const requestHeaders = {
-	// authorization: API_TOKEN,
-	'X-GitHub-Api-Version': '2022-11-28',
-};
-
-const handleInputChange = (e: Event) => {
-	searchInputValue.value = (e.target as HTMLInputElement).value;
-};
+const handleInputChange = (e: Event) => (searchInputValue.value = (e.target as HTMLInputElement).value);
 
 const clearSearchInput = () => (searchInputValue.value = '');
 
@@ -72,7 +69,7 @@ const handleFormSubmit = () => {
 	}
 };
 
-const handleSearchResults = (resultsType, resultsArr) => {
+const handleSearchResults = (resultsType: string, resultsArr: Record<string, any>[]) => {
 	searchResults.value = {
 		...initialSearchResultsState,
 		[resultsType]: resultsArr,
@@ -89,7 +86,7 @@ const getCommits = async (commitsUrl: string) => {
 			headers: requestHeaders,
 		});
 
-		const commitsDataArr = response.data.map(item => ({
+		const commitsDataArr = response.data.map((item: Record<string, any>) => ({
 			message: item.commit.message,
 			date: item.commit.author.date,
 			author: item.commit.author.name,
@@ -109,7 +106,7 @@ const getContributors = async (contributorsUrl: string) => {
 			headers: requestHeaders,
 		});
 
-		const commitsDataArr = response.data.map(item => ({
+		const commitsDataArr = response.data.map((item: Record<string, any>) => ({
 			login: item.login,
 			avatarUrl: item.avatar_url,
 			profileUrl: item.html_url,
@@ -137,7 +134,7 @@ const getMatchingRepositories = async (searchPhrase: string) => {
 		});
 
 		const repositoryData = await Promise.all(
-			response.data.items.map(async resultItem => {
+			response.data.items.map(async (resultItem: Record<string, any>) => {
 				const commits = resultItem.size > 0 ? await getCommits(resultItem.commits_url) : [];
 				const contributors = resultItem.size > 0 ? await getContributors(resultItem.contributors_url) : [];
 
@@ -172,18 +169,30 @@ const getMatchingUsers = async (searchPhrase: string) => {
 				accept: 'application/vnd.github+json',
 			},
 		});
-		console.log(response);
-		const results = response.data.items.map(resultItem => ({
+
+		const results = response.data.items.map((resultItem: Record<string, any>) => ({
 			id: resultItem.id,
 			name: resultItem.login,
 			profileUrl: resultItem.html_url,
 			avatarUrl: resultItem.avatar_url,
 		}));
+
 		handleSearchResults('users', results);
 	} catch (error) {
 		console.log(error);
 	}
 };
+
+provide('searchInputValue', searchInputValue);
+provide('handleInputChange', handleInputChange);
+provide('clearSearchInput', clearSearchInput);
+provide('handleFormSubmit', handleFormSubmit);
+
+provide('searchTarget', searchTarget);
+provide('handleSearchTargetButtonClick', handleSearchTargetButtonClick);
+
+provide('currentPage', currentPage);
+provide('handlePaginationButtonClick', handlePaginationButtonClick);
 
 watch([sortValue, orderValue, resultsPerPageValue, currentPage], () => {
 	handleFormSubmit();
@@ -192,7 +201,7 @@ watch([sortValue, orderValue, resultsPerPageValue, currentPage], () => {
 
 <template>
 	<div class="app-wrapper">
-		<Header :handleSearchTargetButtonClick :searchTarget :handleFormSubmit :searchInputValue :handleInputChange :clearSearchInput />
+		<Header :searchTarget :handleFormSubmit />
 		<SearchSettings
 			:sortValue
 			:setSortValue
@@ -202,7 +211,7 @@ watch([sortValue, orderValue, resultsPerPageValue, currentPage], () => {
 			:orderValue
 			:searchTarget />
 		<LoadingAnimation v-if="isLoading" />
-		<SearchResults v-else :searchResults :currentPage :totalPages :handlePaginationButtonClick :isLoading :searchTarget :hasUserStarted />
+		<SearchResults v-else :hasUserStarted :searchTarget :searchResults :totalPages />
 	</div>
 </template>
 

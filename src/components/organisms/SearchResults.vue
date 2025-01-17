@@ -2,23 +2,21 @@
 import Pagination from '@/components/molecules/Pagination.vue';
 
 const props = defineProps({
-	searchResults: {
-		type: Object,
-	},
-	currentPage: {
-		type: Number,
-	},
-	totalPages: {
-		type: Number,
-	},
-	handlePaginationButtonClick: {
-		type: Function,
+	hasUserStarted: {
+		type: Boolean,
+		required: true,
 	},
 	searchTarget: {
 		type: String,
+		required: true,
 	},
-	hasUserStarted: {
-		type: Boolean,
+	totalPages: {
+		type: Number,
+		required: true,
+	},
+	searchResults: {
+		type: Object,
+		required: true,
 	},
 });
 </script>
@@ -70,7 +68,7 @@ const props = defineProps({
 		<template v-else>
 			<p v-if="hasUserStarted" class="no-matching-results-text">No matching {{ searchTarget }} found...</p>
 		</template>
-		<Pagination v-if="totalPages > 1" :currentPage :totalPages :handlePaginationButtonClick />
+		<Pagination v-if="totalPages > 1" :totalPages />
 	</div>
 </template>
 

@@ -11,7 +11,7 @@ const API_TOKEN = import.meta.env.VITE_GH_TOKEN;
 const route = useRoute();
 const userId = Number(route.params.id);
 const isLoading = ref(true);
-const userData = ref({});
+const userData = ref<Record<string, any>>({});
 
 const octokit = new Octokit({
 	auth: API_TOKEN,
@@ -108,7 +108,6 @@ onMounted(async () => {
 						<span>{{ userData.login }}</span>
 						<span class="text-bold">/{{ repository.name }}</span>
 					</a>
-					<!-- <div class="user-data-row"> -->
 					<div class="user-data-repository-box">
 						<p>Created</p>
 						<p>{{ formatDate(repository.created_at) }}</p>
@@ -117,7 +116,6 @@ onMounted(async () => {
 						<p>Main language</p>
 						<p>{{ repository.language }}</p>
 					</div>
-					<!-- </div> -->
 				</li>
 				<li class="user-repositories-list-item go-back-item">
 					<RouterLink to="/" class="go-back-item-box">
@@ -218,18 +216,12 @@ onMounted(async () => {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-    gap: 0.6rem;
+	gap: 0.6rem;
 
-    svg {
-        scale: 1.3;
-    }
+	svg {
+		scale: 1.3;
+	}
 }
-
-/* .user-data-row { */
-/* display: flex; */
-/* justify-content: space-between; */
-/* gap: 1.2rem; */
-/* } */
 
 .user-data-repository-box {
 	display: flex;

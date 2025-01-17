@@ -1,17 +1,15 @@
 <script setup lang="ts">
+import { inject } from 'vue';
+
 const props = defineProps({
-	currentPage: {
-		type: Number,
-		required: true,
-	},
 	totalPages: {
 		type: Number,
 		required: true,
 	},
-	handlePaginationButtonClick: {
-		type: Function,
-	},
 });
+
+const currentPage = inject('currentPage');
+const handlePaginationButtonClick = inject('handlePaginationButtonClick');
 </script>
 
 <template>

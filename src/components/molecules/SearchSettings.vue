@@ -1,35 +1,36 @@
 <script setup lang="ts">
-// import ChevonDown from '@/assets/icons/ChevonDown.vue';
-
-import { ref } from 'vue';
+import type { PropType } from 'vue';
 
 const props = defineProps({
 	sortValue: {
 		type: String,
+		required: true,
 	},
 	setSortValue: {
-		type: Function,
+		type: Function as PropType<(e: Event) => string>,
+		required: true,
 	},
 	handleOderCheckboxChange: {
-		type: Function,
+		type: Function as PropType<(e: Event) => void>,
+		required: true,
+	},
+	handleResultsPerPageValueChange: {
+		type: Function as PropType<(e: Event) => number>,
+		required: true,
 	},
 	resultsPerPageValue: {
 		type: Number,
-	},
-	handleResultsPerPageValueChange: {
-		type: Function,
+		required: true,
 	},
 	orderValue: {
 		type: String,
+		required: true,
 	},
 	searchTarget: {
 		type: String,
+		required: true,
 	},
 });
-
-// const isAdvancedSettingPanelActive = ref(false);
-
-// const toggleAdvanedSettingPanelState = () => (isAdvancedSettingPanelActive.value = !isAdvancedSettingPanelActive.value);
 </script>
 
 <template>
@@ -72,9 +73,6 @@ const props = defineProps({
 			</select>
 		</div>
 	</div>
-	<!-- <button @click="toggleAdvanedSettingPanelState">
-		{{ isAdvancedSettingPanelActive ? 'Hide' : 'Show' }} advanced settings <ChevonDown class="" />
-	</button> -->
 </template>
 
 <style lang="scss" scoped>
@@ -124,14 +122,4 @@ const props = defineProps({
 		gap: 1.6rem;
 	}
 }
-
-/* @media (min-width: 920px) {
-	.settings-wrapper {
-		justify-content: flex-end;
-	}
-
-	.results-per-page-settings-wrapper  {
-		margin-left: 3.2rem;
-	}
-} */
 </style>

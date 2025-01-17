@@ -2,22 +2,7 @@
 import SearchForm from '@/components/molecules/SearchForm.vue';
 
 const props = defineProps({
-	handleSearchTargetButtonClick: {
-		type: Function,
-	},
 	handleFormSubmit: {
-		type: Function,
-	},
-	searchInputValue: {
-		type: String,
-	},
-	handleInputChange: {
-		type: Function,
-	},
-	searchTarget: {
-		type: String,
-	},
-	clearSearchInput: {
 		type: Function,
 	},
 });
@@ -26,7 +11,7 @@ const props = defineProps({
 <template>
 	<header class="header">
 		<p class="app-title">RepoScout - Github API test task</p>
-		<SearchForm :handleSearchTargetButtonClick :searchTarget :handleFormSubmit :searchInputValue :handleInputChange :clearSearchInput />
+		<SearchForm :handleFormSubmit />
 	</header>
 </template>
 

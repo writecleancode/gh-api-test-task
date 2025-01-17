@@ -2,20 +2,18 @@
 import Xicon from '@/assets/icons/Xicon.vue';
 import SearchIcon from '@/assets/icons/SearchIcon.vue';
 
+import { inject, type PropType } from 'vue';
+
 const props = defineProps({
-	searchInputValue: {
-		type: String,
-	},
-	handleInputChange: {
-		type: Function,
-	},
-	clearSearchInput: {
-		type: Function,
-	},
 	handleFormSubmit: {
-		type: Function,
+		type: Function as PropType<() => void>,
+		required: true,
 	},
 });
+
+const searchInputValue = inject('searchInputValue');
+const handleInputChange = inject('handleInputChange');
+const clearSearchInput = inject('clearSearchInput');
 </script>
 
 <template>
@@ -53,7 +51,6 @@ const props = defineProps({
 	z-index: 1;
 
 	&:focus {
-		/* outline-color: #4c7abf; */
 		outline-offset: -1px;
 	}
 }

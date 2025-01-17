@@ -2,31 +2,16 @@
 import SearchInput from '@/components/atoms/SearchInput.vue';
 import StyledButton from '@/components/atoms/StyledButton.vue';
 
-const props = defineProps({
-	handleSearchTargetButtonClick: {
-		type: Function,
-	},
-	handleFormSubmit: {
-		type: Function,
-	},
-	searchInputValue: {
-		type: String,
-	},
-	handleInputChange: {
-		type: Function,
-	},
-	searchTarget: {
-		type: String,
-	},
-	clearSearchInput: {
-		type: Function,
-	},
-});
+import { inject } from 'vue';
+
+const handleFormSubmit = inject('handleFormSubmit');
+const searchTarget = inject('searchTarget');
+const handleSearchTargetButtonClick = inject('handleSearchTargetButtonClick');
 </script>
 
 <template>
 	<form @submit.prevent="handleFormSubmit" class="search-form">
-		<SearchInput :searchInputValue :handleInputChange :clearSearchInput :handleFormSubmit />
+		<SearchInput :handleFormSubmit />
 		<div class="search-target-buttons-wrapper">
 			<StyledButton
 				class="left"
@@ -74,15 +59,4 @@ const props = defineProps({
 		flex-grow: 1;
 	}
 }
-
-/* @media (min-width: 920px) {
-	.search-form {
-		display: grid;
-		grid-template-columns: 1fr 2fr 1fr;
-	}
-
-	.search-target-buttons-wrapper {
-		grid-column: 3 / 4;
-	}
-} */
 </style>

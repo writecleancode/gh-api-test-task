@@ -1,21 +1,37 @@
 <script setup lang="ts">
 import Header from '@/components/organisms/Header.vue';
+import SearchSettings from '@/components/molecules/SearchSettings.vue';
+import LoadingAnimation from '@/components/atoms/LoadingAnimation.vue';
 import SearchResults from '@/components/organisms/SearchResults.vue';
 
 // import { Octokit, App } from "octokit";
 import { Octokit } from '@octokit/core';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-const initialSearchTarget = 'repositories';
+const initialSearchTarget = 'users';
 const initialSearchResultsState = { repositories: [], users: [] };
+const initialResultsPerPageValue = 20;
 
 const API_TOKEN = import.meta.env.VITE_GH_TOKEN;
+const hasUserStarted = ref(false);
 const isLoading = ref(false);
-const searchInputValue = ref('compact-cars');
+const searchInputValue = ref('writecleancode');
+const sortValue = ref('');
+const orderValue = ref('');
+const resultsPerPageValue = ref(initialResultsPerPageValue);
 const searchTarget = ref(initialSearchTarget);
+const resultsNumber = ref(0);
+const totalPages = computed(() => {
+	return Math.ceil(resultsNumber.value / resultsPerPageValue.value);
+});
+const currentPage = ref(1);
 const searchResults = ref(initialSearchResultsState);
 
 const octokit = new Octokit({ auth: API_TOKEN });
+const requestHeaders = {
+	authorization: API_TOKEN,
+	'X-GitHub-Api-Version': '2022-11-28',
+};
 
 const handleInputChange = (e: Event) => {
 	searchInputValue.value = (e.target as HTMLInputElement).value;
@@ -23,11 +39,28 @@ const handleInputChange = (e: Event) => {
 
 const clearSearchInput = () => (searchInputValue.value = '');
 
-const handleSearchTargetButtonClick = e => {
-	searchTarget.value = e.target.dataset.searchTarget;
+const setSortValue = (e: Event) => (sortValue.value = (e.target as HTMLSelectElement).value);
+
+const handleOderCheckboxChange = (e: Event) => {
+	if ((e.target as HTMLInputElement).checked) {
+		orderValue.value = 'asc';
+	} else {
+		orderValue.value = '';
+	}
 };
 
+const handleResultsPerPageValueChange = (e: Event) => (resultsPerPageValue.value = Number((e.target as HTMLSelectElement).value));
+
+const handleSearchTargetButtonClick = (e: Event) => {
+	hasUserStarted.value = false;
+	searchTarget.value = (e.target as HTMLButtonElement).dataset.searchTarget || initialSearchTarget;
+};
+
+const handlePaginationButtonClick = (e: Event) => (currentPage.value = Number((e.target as HTMLButtonElement).dataset.page));
+
 const handleFormSubmit = () => {
+	if (!searchInputValue.value) return;
+
 	isLoading.value = true;
 	if (searchTarget.value === 'repositories') {
 		getMatchingRepositories(searchInputValue.value);
@@ -42,6 +75,7 @@ const handleSearchResults = (resultsType, resultsArr) => {
 		[resultsType]: resultsArr,
 	};
 	isLoading.value = false;
+	hasUserStarted.value = true;
 };
 
 const getCommits = async (commitsUrl: string) => {
@@ -49,9 +83,7 @@ const getCommits = async (commitsUrl: string) => {
 		const response = await octokit.request({
 			method: 'GET',
 			url: commitsUrl,
-			headers: {
-				authorization: API_TOKEN,
-			},
+			headers: requestHeaders,
 		});
 
 		const commitsDataArr = response.data.map(item => ({
@@ -66,29 +98,58 @@ const getCommits = async (commitsUrl: string) => {
 	}
 };
 
+const getContributors = async (contributorsUrl: string) => {
+	try {
+		const response = await octokit.request({
+			method: 'GET',
+			url: contributorsUrl,
+			headers: requestHeaders,
+		});
+
+		const commitsDataArr = response.data.map(item => ({
+			login: item.login,
+			avatarUrl: item.avatar_url,
+			profileUrl: item.html_url,
+		}));
+
+		return commitsDataArr;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 const getMatchingRepositories = async (searchPhrase: string) => {
 	try {
 		const response = await octokit.request({
 			method: 'GET',
 			url: `/search/repositories?q=${searchPhrase}`,
+			sort: sortValue.value,
+			order: orderValue.value,
+			per_page: resultsPerPageValue.value,
+			page: currentPage.value,
 			headers: {
-				authorization: API_TOKEN,
+				...requestHeaders,
+				accept: 'application/vnd.github+json',
 			},
 		});
+
 		const repositoryData = await Promise.all(
 			response.data.items.map(async resultItem => {
 				const commits = resultItem.size > 0 ? await getCommits(resultItem.commits_url) : [];
+				const contributors = resultItem.size > 0 ? await getContributors(resultItem.contributors_url) : [];
 
 				return {
 					id: resultItem.id,
 					title: resultItem.full_name,
 					url: resultItem.html_url,
 					commits,
+					contributors,
 				};
 			})
 		);
 
 		handleSearchResults('repositories', repositoryData);
+		resultsNumber.value = Number(response.data.total_count);
 	} catch (error) {
 		console.log(error);
 	}
@@ -99,11 +160,16 @@ const getMatchingUsers = async (searchPhrase: string) => {
 		const response = await octokit.request({
 			method: 'GET',
 			url: `/search/users?q=${searchPhrase}`,
+			sort: sortValue.value,
+			order: orderValue.value,
+			per_page: resultsPerPageValue.value,
+			page: currentPage.value,
 			headers: {
-				authorization: API_TOKEN,
+				...requestHeaders,
+				accept: 'application/vnd.github+json',
 			},
 		});
-		console.log(response);
+		// console.log(response);
 		const results = response.data.items.map(resultItem => ({
 			id: resultItem.id,
 			name: resultItem.login,
@@ -115,18 +181,61 @@ const getMatchingUsers = async (searchPhrase: string) => {
 		console.log(error);
 	}
 };
+
+watch([sortValue, orderValue, resultsPerPageValue, currentPage], () => {
+	handleFormSubmit();
+});
 </script>
 
 <template>
 	<div class="app-wrapper">
 		<Header :handleSearchTargetButtonClick :searchTarget :handleFormSubmit :searchInputValue :handleInputChange :clearSearchInput />
-		<p v-if="isLoading">Loading...</p>
-		<SearchResults v-else :searchResults />
+		<SearchSettings
+			:sortValue
+			:setSortValue
+			:handleOderCheckboxChange
+			:resultsPerPageValue
+			:handleResultsPerPageValueChange
+			:orderValue
+			:searchTarget />
+		<LoadingAnimation v-if="isLoading" />
+		<SearchResults v-else :searchResults :currentPage :totalPages :handlePaginationButtonClick :isLoading :searchTarget :hasUserStarted />
 	</div>
 </template>
 
 <style scoped>
 .app-wrapper {
-	padding: 0 0.8rem;
+	padding: 0 0.8rem 1.6rem;
+}
+
+@media (min-width: 380px) {
+	.app-wrapper {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+}
+
+@media (min-wdith: 460px) {
+	.app-wrapper {
+		padding-left: 1.2rem;
+		padding-right: 1.2rem;
+		padding-bottom: 2rem;
+	}
+}
+
+@media (min-width: 640px) {
+	.app-wrapper {
+		padding-left: 1.6rem;
+		padding-right: 1.6rem;
+		padding-bottom: 2rem;
+	}
+}
+
+@media (min-width: 1440px) {
+	.app-wrapper {
+		max-width: 1200px;
+		margin-left: auto;
+		margin-right: auto;
+	}
 }
 </style>

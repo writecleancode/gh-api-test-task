@@ -42,4 +42,11 @@ const props = defineProps({
 	font-size: 1.7rem;
 	text-align: center;
 }
+
+@media (min-width: 1200px) {
+	.app-title {
+		padding: 0.8rem;
+		font-size: 1.9rem;
+	}
+}
 </style>

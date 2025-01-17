@@ -12,13 +12,21 @@ const props = defineProps({
 	clearSearchInput: {
 		type: Function,
 	},
+	handleFormSubmit: {
+		type: Function,
+	},
 });
 </script>
 
 <template>
 	<div class="search-input-wrapper">
-		<input type="text" class="search-input" :value="searchInputValue" @input="handleInputChange" />
-		<button v-if="searchInputValue" class="clear-search-input-button" aria-label="clear search input" @click="clearSearchInput">
+		<input type="text" name="search" id="search" class="search-input" :value="searchInputValue" @input="handleInputChange" />
+		<button
+			type="button"
+			v-if="searchInputValue"
+			class="clear-search-input-button"
+			aria-label="clear search input"
+			@click="clearSearchInput">
 			<Xicon />
 		</button>
 		<button class="search-button" type="submit" title="Search!" aria-label="search">
@@ -73,6 +81,18 @@ const props = defineProps({
 
 	&:focus-visible {
 		outline-offset: -1px;
+	}
+}
+
+@media (min-width: 640px) {
+	.search-input-wrapper {
+		flex-grow: 1;
+	}
+}
+
+@media (min-width: 640px) {
+	.search-input-wrapper {
+		flex-grow: 3;
 	}
 }
 </style>

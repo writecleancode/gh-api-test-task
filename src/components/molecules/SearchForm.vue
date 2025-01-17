@@ -20,13 +20,13 @@ const props = defineProps({
 	},
 	clearSearchInput: {
 		type: Function,
-	}
+	},
 });
 </script>
 
 <template>
 	<form @submit.prevent="handleFormSubmit" class="search-form">
-		<SearchInput :searchInputValue :handleInputChange :clearSearchInput />
+		<SearchInput :searchInputValue :handleInputChange :clearSearchInput :handleFormSubmit />
 		<div class="search-target-buttons-wrapper">
 			<StyledButton
 				class="left"
@@ -34,18 +34,18 @@ const props = defineProps({
 				:isActive="searchTarget === 'repositories'"
 				@click="handleSearchTargetButtonClick"
 				type="button"
-				:aria-label="`set respositories as search target (current search target is: ${searchTarget})`"
-				>Repositories</StyledButton
-			>
+				:aria-label="`set respositories as search target (current search target is: ${searchTarget})`">
+				Repositories
+			</StyledButton>
 			<StyledButton
 				class="right"
 				data-search-target="users"
 				:isActive="searchTarget === 'users'"
 				@click="handleSearchTargetButtonClick"
 				type="button"
-				:aria-label="`set respositories as search target (current search target is: ${searchTarget})`"
-				>Users</StyledButton
-			>
+				:aria-label="`set respositories as search target (current search target is: ${searchTarget})`">
+				Users
+			</StyledButton>
 		</div>
 	</form>
 </template>
@@ -61,4 +61,28 @@ const props = defineProps({
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 }
+
+@media (min-width: 640px) {
+	.search-form {
+		flex-direction: row;
+		gap: 1.6rem;
+	}
+}
+
+@media (min-width: 880px) {
+	.search-target-buttons-wrapper {
+		flex-grow: 1;
+	}
+}
+
+/* @media (min-width: 920px) {
+	.search-form {
+		display: grid;
+		grid-template-columns: 1fr 2fr 1fr;
+	}
+
+	.search-target-buttons-wrapper {
+		grid-column: 3 / 4;
+	}
+} */
 </style>

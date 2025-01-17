@@ -61,4 +61,10 @@ const props = defineProps({
 		}
 	}
 }
+
+@media (min-width: 640px) {
+	.styled-button {
+		box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+	}
+}
 </style>
